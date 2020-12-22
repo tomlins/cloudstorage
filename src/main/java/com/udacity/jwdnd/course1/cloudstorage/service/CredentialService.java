@@ -61,6 +61,11 @@ public class CredentialService {
         return credentialMapper.deleteCredential(credentialId, user.getUserId());
     }
 
+    public Credential getCredential(Integer id) {
+        Credential credential = credentialMapper.getCredential(id);
+        return credential;
+    }
+
     public List<Credential> getAllCredentials(String username) {
         User user = userMapper.getUser(username);
         List<Credential> credentialList = credentialMapper.getAllCredentials(user.getUserId());

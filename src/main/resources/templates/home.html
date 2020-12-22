@@ -169,21 +169,19 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="credential : ${creds}">
-                                    <td>
-                                        <button th:data-credentialId="${credential.credentialId}"
-                                                th:data-url="${credential.url}"
-                                                th:data-username="${credential.username}"
-                                                th:data-password="${encryptionService.decryptValue(credential.password,credential.key)}"
-                                                onclick="showCredentialModal(this.getAttribute('data-credentialId'), this.getAttribute('data-url'), this.getAttribute('data-username'), this.getAttribute('data-password'))"
-                                                type="button" class="btn btn-success">Edit</button>
+                                    <tr th:each="credential : ${creds}">
+                                        <td>
+                                            <button type="button" id="edit-credential-button" class="btn btn-success"
+                                                    th:data-credentialId="${credential.credentialId}"
+                                                    onclick="getAndShowCredentials(this.getAttribute('data-credentialId'))">
+                                                Edit</button>
 
-                                        <a th:href="@{/deletecred/{credentialId}(credentialId=${credential.credentialId})}" class="btn btn-danger">Delete</a>
-                                    </td>
-                                    <th scope="row" th:text="${credential.url}">Example Credential URL</th>
-                                    <td th:text="${credential.username}">Example Credential Username</td>
-                                    <td th:text="${credential.password}">Example Credential Password</td>
-                                </tr>
+                                            <a th:href="@{/deletecred/{credentialId}(credentialId=${credential.credentialId})}" class="btn btn-danger">Delete</a>
+                                        </td>
+                                        <th scope="row" th:text="${credential.url}">Example Credential URL</th>
+                                        <td th:text="${credential.username}">Example Credential Username</td>
+                                        <td th:text="${credential.password}">Example Credential Password</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -233,7 +231,8 @@
             </div>
         </div>
 
-        <script th:src="@{/js/jquery-slim.min.js}"></script>
+        <!--script th:src="@{/js/jquery-slim.min.js}"></script-->
+        <script th:src="@{/js/jquery.min.js}"></script>
         <script th:src="@{/js/popper.min.js}"></script>
         <script th:src="@{/js/bootstrap.min.js}"></script>
 
@@ -245,6 +244,14 @@
                 $('#note-title').val(noteTitle ? noteTitle : '');
                 $('#note-description').val(noteDescription ? noteDescription : '');
                 $('#noteModal').modal('show');
+            }
+
+            function getAndShowCredentials(id) {
+                $.ajax({
+                    url: "/credential/" + id
+                }).then(function(data) {
+                    showCredentialModal(data.credentialId, data.url, data.username, data.password)
+                });
             }
 
             // For opening the credentials modal
