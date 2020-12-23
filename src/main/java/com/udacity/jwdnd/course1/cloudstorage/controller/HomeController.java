@@ -60,6 +60,6 @@ public class HomeController {
 
     @PostMapping("/home")
     public String postHomeView(Authentication authentication, Model model) {
-        return homeView(authentication, model, null);
+        return homeView(authentication, model, Optional.empty());
     }
 }
