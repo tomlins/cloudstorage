@@ -69,8 +69,6 @@ public class CredentialService {
     public List<Credential> getAllCredentials(String username) {
         User user = userMapper.getUser(username);
         List<Credential> credentialList = credentialMapper.getAllCredentials(user.getUserId());
-        // decrypt credential password for display
-        //credentialList.stream().forEach(credential -> decryptPassword(credential));
         return credentialList;
     }
 

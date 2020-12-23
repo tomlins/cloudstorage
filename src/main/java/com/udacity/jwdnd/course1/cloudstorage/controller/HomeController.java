@@ -1,7 +1,5 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
-import com.udacity.jwdnd.course1.cloudstorage.entity.File;
-import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.service.EncryptionService;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -41,7 +38,7 @@ public class HomeController {
 
         model.addAttribute("encryptionService", encryptionService);
 
-        if (!activeTab.isEmpty()) {
+        if (activeTab!=null && !activeTab.isEmpty()) {
             // Detect if we have a query param passed if coming from result.html
             //
             if (activeTab.get().equals("files"))

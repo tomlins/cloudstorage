@@ -1,19 +1,18 @@
 package com.udacity.jwdnd.course1.cloudstorage;
 
+import com.udacity.jwdnd.course1.cloudstorage.entity.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.page.HomePage;
 import com.udacity.jwdnd.course1.cloudstorage.page.LoginPage;
 import com.udacity.jwdnd.course1.cloudstorage.page.SignUpPage;
+import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-
-import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -28,6 +27,7 @@ class CloudStorageApplicationTests {
 	private LoginPage loginPage;
 	private HomePage homePage;
 
+	// The one and only user, Peter Cushing
 	public static final String FIRSTNAME = "Peter";
 	public static final String LASTNAME = "Cushing";
 	public static final String USERNAME = "grand_moff";
@@ -38,6 +38,23 @@ class CloudStorageApplicationTests {
 	public static final String NOTEDESCRIPTION = "I've grown tired of asking, so this is the last time. Where are my slippers?";
 	public static final String APPENDTITLE = " Update";
 	public static final String APPENDDESC = " Thanks";
+
+	// Credentials
+	public static final String CRED_1_URL = "http://www.google.com";
+	public static final String CRED_1_USERNAME = "david";
+	public static final String CRED_1_READABLE_PASSWORD = "ziggy";
+
+	public static final String CRED_2_URL = "http://www.starwars.com";
+	public static final String CRED_2_USERNAME = "grandmoff";
+	public static final String CRED_2_READABLE_PASSWORD = "deathstar";
+
+	public static final String CRED_3_URL = "http://www.youtube.com";
+	public static final String CRED_3_USERNAME = "bikerbytes";
+	public static final String CRED_3_READABLE_PASSWORD = "adventure";
+
+
+	@Autowired
+	CredentialService credentialService;
 
 
 	@BeforeAll
@@ -60,7 +77,6 @@ class CloudStorageApplicationTests {
 	@Test
 	@Order(1)
 	public void testUnauthorizedUserCanOnlyAccessHomePageAndLoginPage() {
-
 		driver.get("http://localhost:" + this.port + "/login");
 		Assertions.assertEquals("Login", driver.getTitle());
 
@@ -75,7 +91,6 @@ class CloudStorageApplicationTests {
 	@Test
 	@Order(2)
 	public void signUpLoginVerifyHomePageLogout() {
-
 		// Signup new user
 		driver.get("http://localhost:" + this.port + "/signup");
 		signUpPage = new SignUpPage(driver);
@@ -98,46 +113,110 @@ class CloudStorageApplicationTests {
 		// Test user can not access home page
 		driver.get("http://localhost:" + this.port + "/home");
 		Assertions.assertNotEquals("Home", driver.getTitle());
-
 	}
 
 	@Test
 	@Order(3)
-	public void loginCreateNoteVerifyDisplayed() {
-
+	public void verifyNonExistantNoteNotDisplayed() {
 		login();
 		displayHomePage("notes");
-		homePage.addNote(NOTETITLE, NOTEDESCRIPTION);
-		displayHomePage("notes");
-		Assertions.assertTrue(doesNoteExist(NOTETITLE, NOTEDESCRIPTION));
-
+		Assertions.assertFalse(doesNoteExist(1, NOTETITLE, NOTEDESCRIPTION));
 	}
 
 	@Test
 	@Order(4)
-	public void editNoteVerifyChangesDisplayed() {
-
+	public void createNoteVerifyDisplayed() {
 		login();
 		displayHomePage("notes");
-		homePage.editNote(1, APPENDTITLE, APPENDDESC); // As we only have one note, we know the id of the note to edit
+		homePage.addNote(NOTETITLE, NOTEDESCRIPTION);
 		displayHomePage("notes");
-		Assertions.assertTrue(doesNoteExist(NOTETITLE + APPENDTITLE, NOTEDESCRIPTION + APPENDDESC));
+		Assertions.assertTrue(doesNoteExist(1, NOTETITLE, NOTEDESCRIPTION));
+	}
 
+	@Test
+	@Order(5)
+	public void editNoteVerifyChangesDisplayed() {
+		login();
+		displayHomePage("notes");
+		homePage.editNote(APPENDTITLE, APPENDDESC); // As we only have one note, we know the id of the note to edit
+		displayHomePage("notes");
+		Assertions.assertTrue(doesNoteExist(1, NOTETITLE + APPENDTITLE, NOTEDESCRIPTION + APPENDDESC));
+	}
+
+	@Test
+	@Order(6)
+	public void deleteNoteVerifyNotDisplayed() {
+		login();
+		displayHomePage("notes");
+		homePage.deleteNoteWithId_1(); // As we only have one note, we know the id of the note to delete
+		displayHomePage("notes");
+		Assertions.assertFalse(doesNoteExist(1, NOTETITLE + APPENDTITLE, NOTEDESCRIPTION + APPENDDESC));
+	}
+
+	@Test
+	@Order(7)
+	public void createCredentialsVerifyDisplayed() {
+		login();
+		displayHomePage("creds");
+
+		// This will have a credential ID of 1
+		homePage.addCredential(CRED_1_URL, CRED_1_USERNAME, CRED_1_READABLE_PASSWORD);
+		displayHomePage("creds");
+
+		// This will have a credential ID of 2
+		homePage.addCredential(CRED_2_URL, CRED_2_USERNAME, CRED_2_READABLE_PASSWORD);
+		displayHomePage("creds");
+
+		// This will have a credential ID of 3
+		homePage.addCredential(CRED_3_URL, CRED_3_USERNAME, CRED_3_READABLE_PASSWORD);
+		displayHomePage("creds");
+
+		Assertions.assertTrue(isCredentialDisplayedAndPasswordEncrypted(1, CRED_1_URL, CRED_1_USERNAME, CRED_1_READABLE_PASSWORD));
+		Assertions.assertTrue(isCredentialDisplayedAndPasswordEncrypted(2, CRED_2_URL, CRED_2_USERNAME, CRED_2_READABLE_PASSWORD));
+		Assertions.assertTrue(isCredentialDisplayedAndPasswordEncrypted(3, CRED_3_URL, CRED_3_USERNAME, CRED_3_READABLE_PASSWORD));
 	}
 
 
 	@Test
-	@Order(5)
-	public void deleteNoteVerifyNotDisplayed() {
-
+	@Order(8)
+	public void viewAndEditCredential_2_VerifyUpdateDisplayed() {
 		login();
-		displayHomePage("notes");
-		homePage.deleteNote(1); // As we only have one note, we know the id of the note to delete
-		displayHomePage("notes");
-		Assertions.assertFalse(doesNoteExist(NOTETITLE + APPENDTITLE, NOTEDESCRIPTION + APPENDDESC));
+		displayHomePage("creds");
 
+		// Display Credential set 2
+		homePage.displayCredentialWithId_2();
 
+		// Grab the readable password thats displayed in the modal that was returned from AJAX JS call
+		WebElement cred_2_Password = driver.findElement(By.id("credential-password"));
+		String readablePassword = (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].value", cred_2_Password);
+
+		// Verify the modals' readable password matches that of the original
+		Assertions.assertTrue(readablePassword.equals(CRED_2_READABLE_PASSWORD));
+
+		// Edit credential set 2 and set new values for each field
+		homePage.editCredentialWithId_2("http://www.startrek", "bones", "enterprise");
+		displayHomePage("creds");
+
+		// Verify changes to credential set 2 are reflected in the list of stored and displayed credentials
+		Assertions.assertTrue(isCredentialDisplayedAndPasswordEncrypted(2, "http://www.startrek", "bones", "enterprise"));
 	}
+
+	@Test
+	@Order(9)
+	public void deleteCredential_2_VerifyNoLongerDisplayed() {
+		login();
+		displayHomePage("creds");
+
+		homePage.deleteCredentialWithId_2();
+		displayHomePage("creds");
+
+		Assertions.assertFalse(isCredentialDisplayedAndPasswordEncrypted(2, "http://www.startrek", "bones", "enterprise"));
+	}
+
+
+
+	/******************** Helper methods follow *********************/
+
 
 
 	private void login() {
@@ -150,42 +229,52 @@ class CloudStorageApplicationTests {
 		tab = (tab == null || tab.isEmpty()) ? "files" : tab;
 		driver.get("http://localhost:" + this.port + "/home?activeTab=" + tab);
 		homePage = new HomePage(driver);
-		delay(1);
+		new WebDriverWait(driver, 1000).until(
+				webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
 	}
 
-	/**
-	 * Searches for a particular note based on title and description
-	 * @throws org.openqa.selenium.NoSuchElementException if no notes exist
-	 * @param noteTitle
-	 * @param noteDescription
-	 * @return true if note exists, otherwise false
-	 */
-	private boolean doesNoteExist(String noteTitle, String noteDescription) {
-		List<WebElement> notesList = driver.findElements(By.id("notes-list"));
-		int idx = 1;
-		for (WebElement element : notesList) {
-			try {
-				WebElement noteTitleElement = element.findElement(By.id("noteTitle_" + idx));
-				WebElement noteDescriptionElement = element.findElement(By.id("noteDescription_" + idx));
-				String noteTitleText = noteTitleElement.getText();
-				String noteDescriptionText = noteDescriptionElement.getText();
-				if (noteTitle.equals(noteTitleText) && noteDescription.equals(noteDescriptionText))
-					return true;
-			} catch (NoSuchElementException x) {
-				return false;
-			}
-			idx++;
+	private boolean doesNoteExist(Integer idx, String noteTitle, String noteDescription) {
+		try {
+			WebElement noteTitleElement = driver.findElement(By.id("noteTitle_" + idx));
+			WebElement noteDescriptionElement = driver.findElement(By.id("noteDescription_" + idx));
+			String noteTitleText = noteTitleElement.getText();
+			String noteDescriptionText = noteDescriptionElement.getText();
+			if (noteTitle.equals(noteTitleText) && noteDescription.equals(noteDescriptionText))
+				return true;
+		} catch (NoSuchElementException x) {
+			// Thrown when element not displayed
+			return false;
 		}
+
 		return false;
 	}
 
-	public static void delay(int seconds) {
+	private boolean isCredentialDisplayedAndPasswordEncrypted(Integer id, String url, String username, String password) {
 		try {
-			Thread.sleep(seconds * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			WebElement credURL = driver.findElement(By.id("credURL_" + id));
+			WebElement credUsername = driver.findElement(By.id("credUsername_" + id));
+			WebElement credPassword = driver.findElement(By.id("credPassword_" + id));
+
+			// These are the displayed credentials for the given ID
+			String displayedCredURLText = credURL.getText();
+			String displayedCredUsernameText = credUsername.getText();
+			String displayedEncryptedPasswordText = credPassword.getText();
+
+			// Get the matching stored credential
+			Credential credential = credentialService.getCredential(id);
+
+			// Check that the displayed credentials is same as method args
+			// AND same as stored credential except for password as the displayed
+			// password should NOT match the stored encrypted password
+			if ((displayedCredURLText.equals(credential.getUrl()) && displayedCredURLText.equals(url)) &&
+					(displayedCredUsernameText.equals(credential.getUsername()) && displayedCredUsernameText.equals(username)) &&
+					(displayedEncryptedPasswordText.equals(credential.getPassword()) && !displayedEncryptedPasswordText.equals(password)))
+				return true;
+		} catch (NoSuchElementException x) {
+			// Thrown when element not displayed
+			return false;
 		}
 
+		return false;
 	}
-
 }

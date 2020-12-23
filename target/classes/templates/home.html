@@ -154,7 +154,7 @@
 
                     <!-- credentials -->
                     <div class="tab-pane fade" th:classappend="${activeTab eq 'creds'} ? 'show active' : ''" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
-                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showCredentialModal()">
+                        <button id="add-credential-button" style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showCredentialModal()">
                             + Add a New Credential
                         </button>
 
@@ -168,22 +168,22 @@
                                         <th style="width: 25%" scope="col">Password</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                <tr th:each="credential : ${creds}">
-                                    <td>
-                                        <button th:data-credentialId="${credential.credentialId}"
-                                                th:data-url="${credential.url}"
-                                                th:data-username="${credential.username}"
-                                                th:data-password="${encryptionService.decryptValue(credential.password,credential.key)}"
-                                                onclick="showCredentialModal(this.getAttribute('data-credentialId'), this.getAttribute('data-url'), this.getAttribute('data-username'), this.getAttribute('data-password'))"
-                                                type="button" class="btn btn-success">Edit</button>
+                                <tbody id="creds-list">
+                                    <tr th:each="credential : ${creds}">
+                                        <td>
+                                            <button type="button" class="btn btn-success"
+                                                    th:id="'edit-credential-button_' + ${credential.credentialId}"
+                                                    th:data-credentialId="${credential.credentialId}"
+                                                    onclick="getAndShowCredentials(this.getAttribute('data-credentialId'))">
+                                                Edit</button>
 
-                                        <a th:href="@{/deletecred/{credentialId}(credentialId=${credential.credentialId})}" class="btn btn-danger">Delete</a>
-                                    </td>
-                                    <th scope="row" th:text="${credential.url}">Example Credential URL</th>
-                                    <td th:text="${credential.username}">Example Credential Username</td>
-                                    <td th:text="${credential.password}">Example Credential Password</td>
-                                </tr>
+                                            <a th:href="@{/deletecred/{credentialId}(credentialId=${credential.credentialId})}"
+                                               th:id="'delete-credential-button_' + ${credential.credentialId}" class="btn btn-danger">Delete</a>
+                                        </td>
+                                        <th scope="row" th:id="'credURL_' + ${credential.credentialId}" th:text="${credential.url}">Example Credential URL</th>
+                                        <td th:id="'credUsername_' + ${credential.credentialId}"th:text="${credential.username}">Example Credential Username</td>
+                                        <td th:id="'credPassword_' + ${credential.credentialId}"th:text="${credential.password}">Example Credential Password</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -233,7 +233,8 @@
             </div>
         </div>
 
-        <script th:src="@{/js/jquery-slim.min.js}"></script>
+        <!--script th:src="@{/js/jquery-slim.min.js}"></script-->
+        <script th:src="@{/js/jquery.min.js}"></script>
         <script th:src="@{/js/popper.min.js}"></script>
         <script th:src="@{/js/bootstrap.min.js}"></script>
 
@@ -245,6 +246,14 @@
                 $('#note-title').val(noteTitle ? noteTitle : '');
                 $('#note-description').val(noteDescription ? noteDescription : '');
                 $('#noteModal').modal('show');
+            }
+
+            function getAndShowCredentials(id) {
+                $.ajax({
+                    url: "/credential/" + id
+                }).then(function(data) {
+                    showCredentialModal(data.credentialId, data.url, data.username, data.password)
+                });
             }
 
             // For opening the credentials modal
