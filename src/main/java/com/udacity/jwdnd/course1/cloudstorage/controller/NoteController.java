@@ -1,6 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
+import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.service.NoteService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -25,17 +26,28 @@ public class NoteController {
         String username = authentication.getName();
         Integer result;
 
-        if (note.getNoteId() == null)
+        if (note.getNoteId() == null) {
             result = noteService.addNote(note, username);
-        else
+            if (result != 1) {
+                model.addAttribute("message", NoteService.ADD_FAIL);
+                model.addAttribute("success", false);
+            } else {
+                model.addAttribute("message", NoteService.ADD_SUCCESS);
+                model.addAttribute("success", true);
+            }
+        }
+        else {
             result = noteService.editNote(note, username);
-
-        model.addAttribute("success", true);
-        if (result!=1)
-            model.addAttribute("success", false);
+            if (result != 1) {
+                model.addAttribute("message", NoteService.UPDATE_FAIL);
+                model.addAttribute("success", false);
+            } else {
+                model.addAttribute("message", NoteService.UPDATE_SUCCESS);
+                model.addAttribute("success", true);
+            }
+        }
 
         model.addAttribute("activeTab", "notes");
-
         return "result";
     }
 
@@ -45,12 +57,15 @@ public class NoteController {
         String username = authentication.getName();
         Integer result = noteService.deleteNote(noteId, username);
 
-        model.addAttribute("success", true);
-        if (result!=1)
+        if (result != 1) {
+            model.addAttribute("message", NoteService.DELETE_FAIL);
             model.addAttribute("success", false);
+        } else {
+            model.addAttribute("message", NoteService.DELETE_SUCCESS);
+            model.addAttribute("success", true);
+        }
 
         model.addAttribute("activeTab", "notes");
-
         return "result";
     }
 

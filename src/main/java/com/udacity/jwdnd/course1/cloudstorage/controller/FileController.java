@@ -9,12 +9,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class FileController {
@@ -26,22 +26,36 @@ public class FileController {
     }
 
     @PostMapping("/uploadfile")
-    public String uploadFile(Authentication authentication, @RequestParam("fileUpload") MultipartFile file, RedirectAttributes redirectAttrs) {
+    public String uploadFile(Authentication authentication, @RequestParam("fileUpload") MultipartFile file, Model model) {
         String username = authentication.getName();
-        String outcome = fileService.saveFile(username, file);
-        redirectAttrs.addFlashAttribute("message", outcome);
-        redirectAttrs.addFlashAttribute("activeTab", "files");
-        return "redirect:/home";
+        String message = fileService.saveFile(username, file);
+
+        boolean success = false;
+        if (message == null) {
+            message = FileService.UPLOAD_SUCCESS;
+            success = true;
+        }
+        model.addAttribute("success", success);
+        model.addAttribute("message", message);
+        model.addAttribute("activeTab", "files");
+        return "result";
     }
 
     @GetMapping("deletefile/{fileId}")
-    public String deleteFile(Authentication authentication, @PathVariable("fileId") Integer fileId, RedirectAttributes redirectAttrs) {
+    public String deleteFile(Authentication authentication, @PathVariable("fileId") Integer fileId, Model model) {
         String username = authentication.getName();
         boolean success = fileService.deleteFile(fileId, username);
-        if (!success)
-            redirectAttrs.addFlashAttribute("message", "Unable to delete file!");
-        redirectAttrs.addFlashAttribute("activeTab", "files");
-        return "redirect:/home";
+
+        if (!success) {
+            model.addAttribute("message", FileService.ERROR_EXCEPTION);
+            model.addAttribute("success", false);
+        } else {
+            model.addAttribute("message", FileService.DELETE_SUCCESS);
+            model.addAttribute("success", true);
+        }
+
+        model.addAttribute("activeTab", "files");
+        return "result";
     }
 
     @GetMapping("downloadfile/{fileId}")

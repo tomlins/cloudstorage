@@ -10,6 +10,7 @@ public class LoginPage {
     @FindBy(id = "inputUsername")   private WebElement usernameTextField;
     @FindBy(id = "inputPassword")   private WebElement passwordTextField;
     @FindBy(id = "loginButton")     private WebElement loginButton;
+    @FindBy(id = "success-msg")     private WebElement signUpSuccessMessage;
 
     public LoginPage(WebDriver driver) {
         PageFactory.initElements(driver, this);
@@ -19,6 +20,12 @@ public class LoginPage {
         usernameTextField.sendKeys(username);
         passwordTextField.sendKeys(password);
         loginButton.click();
+    }
+
+    public boolean isSignUpSuccessful() {
+        if (signUpSuccessMessage.getText().contains("You successfully signed up"))
+            return true;
+        return false;
     }
 
 }

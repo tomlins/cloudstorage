@@ -12,7 +12,6 @@ public class SignUpPage {
     @FindBy(id = "inputUsername")   private WebElement usernameTextField;
     @FindBy(id = "inputPassword")   private WebElement passwordTextField;
     @FindBy(id = "signupButton")   private WebElement signupButton;
-    @FindBy(id = "success-msg")   private WebElement signUpSuccessMessage;
 
     public SignUpPage(WebDriver driver) {
         PageFactory.initElements(driver, this);
@@ -24,12 +23,6 @@ public class SignUpPage {
         usernameTextField.sendKeys(username);
         passwordTextField.sendKeys(password);
         signupButton.click();
-    }
-
-    public boolean isSignUpSuccessful() {
-        if (signUpSuccessMessage.getText().contains("You successfully signed up"))
-            return true;
-        return false;
     }
 
 }

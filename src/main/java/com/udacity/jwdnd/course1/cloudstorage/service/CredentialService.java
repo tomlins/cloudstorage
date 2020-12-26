@@ -14,6 +14,16 @@ import java.util.List;
 @Service
 public class CredentialService {
 
+    public static final String UPDATE_SUCCESS = "Your credential has been updated successfully.";
+    public static final String UPDATE_FAIL = "Oops. We could not update your credential. Try again.";
+
+    public static final String ADD_SUCCESS = "Your credential has been added successfully.";
+    public static final String ADD_FAIL = "Oops. We could not add your credential. Try again.";
+
+    public static final String DELETE_SUCCESS = "Your credential has been deleted.";
+    public static final String DELETE_FAIL = "Oops. We could not delete your credential. Try again.";
+
+
     private ICredentialMapper credentialMapper;
     private IUserMapper userMapper;
     private EncryptionService encryptionService;

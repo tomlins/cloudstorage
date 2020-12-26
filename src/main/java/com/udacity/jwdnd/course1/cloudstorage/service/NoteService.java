@@ -11,6 +11,16 @@ import java.util.List;
 @Service
 public class NoteService {
 
+    public static final String UPDATE_SUCCESS = "Your note has been updated successfully.";
+    public static final String UPDATE_FAIL = "Oops. We could not update your note. Try again.";
+
+    public static final String ADD_SUCCESS = "Your note has been added successfully.";
+    public static final String ADD_FAIL = "Oops. We could not add your note. Try again.";
+
+    public static final String DELETE_SUCCESS = "Your note has been deleted.";
+    public static final String DELETE_FAIL = "Oops. We could not delete your note. Try again.";
+
+
     private INoteMapper noteMapper;
     private IUserMapper userMapper;
 

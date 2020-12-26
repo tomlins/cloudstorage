@@ -7,15 +7,20 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Optional;
+
 @ControllerAdvice
 public class ExceptionControllerAdvice {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ModelAndView handleMultipartException(MultipartException ex, RedirectAttributes redirectAttrs) {
 
-        ModelAndView modelAndView = new ModelAndView("forward:/home"); // forward does a POST, see PostMapping in HomeController
-        if (ex instanceof MaxUploadSizeExceededException)
+        ModelAndView modelAndView = new ModelAndView("result"); // forward does a POST, see PostMapping in HomeController
+        if (ex instanceof MaxUploadSizeExceededException) {
             modelAndView.getModel().put("message", "File size exceeded, 10MB Max please.");
+            modelAndView.getModel().put("success", false);
+            modelAndView.getModel().put("activeTab", "files");
+        }
 
         return modelAndView;
     }

@@ -16,6 +16,9 @@
 
             <form action="#" th:action="@{/login}" method="POST">
 
+                <div id="success-msg" th:if="${signupSuccess}" class="alert alert-dark">
+                    You successfully signed up! Please login.
+                </div>
                 <div id="error-msg" th:if="${param.error}" class="alert alert-danger">
                     Invalid username or password
                 </div>
@@ -36,7 +39,7 @@
 
             </form>
 
-            <div class="form-group" style="margin-top: 0.5em;">
+            <div class="form-group" style="margin-top: 0.5em;" th:if="${signupSuccess == null}">
                 <label><a id="signup-link" th:href="@{/signup}">Click here to sign up</a></label>
             </div>
         </div>

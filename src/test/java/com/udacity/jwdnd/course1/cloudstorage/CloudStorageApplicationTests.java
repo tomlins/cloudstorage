@@ -95,8 +95,8 @@ class CloudStorageApplicationTests {
 		driver.get("http://localhost:" + this.port + "/signup");
 		signUpPage = new SignUpPage(driver);
 		signUpPage.signUp(FIRSTNAME, LASTNAME, USERNAME, PASSWORD);
-		signUpPage = new SignUpPage(driver);
-		Assertions.assertTrue(signUpPage.isSignUpSuccessful());
+		loginPage = new LoginPage(driver);
+		Assertions.assertTrue(loginPage.isSignUpSuccessful());
 
 		// Logon new user
 		login();

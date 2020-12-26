@@ -1,8 +1,11 @@
 package com.udacity.jwdnd.course1.cloudstorage.entity;
 
+import org.hibernate.validator.constraints.URL;
+
 public class Credential {
 
     private Integer credentialId;
+    @URL(protocol = "http")
     private String url;
     private String key;
     private String username;

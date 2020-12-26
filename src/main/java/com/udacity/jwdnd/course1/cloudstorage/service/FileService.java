@@ -17,6 +17,8 @@ public class FileService {
     public static final String ERROR_EXCEPTION = "Oops! Something went wrong, try again.";
     public static final String ERROR_NO_FILE = "Please select a file to upload.";
     public static final String ERROR_DUPLICATE = "A file of that name already exists.";
+    public static final String UPLOAD_SUCCESS = "SUCCESS! Your file has been uploaded.";
+    public static final String DELETE_SUCCESS = "SUCCESS! Your file has been deleted.";
 
     private IFileMapper fileMapper;
     private IUserMapper userMapper;

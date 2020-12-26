@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class CredentialController {
@@ -37,14 +36,26 @@ public class CredentialController {
         String username = authentication.getName();
 
         Integer result;
-        if (credential.getCredentialId() == null)
+        if (credential.getCredentialId() == null) {
             result = credentialService.addCredential(credential, username);
-        else
+            if (result != 1) {
+                model.addAttribute("message", CredentialService.ADD_FAIL);
+                model.addAttribute("success", false);
+            } else {
+                model.addAttribute("message", CredentialService.ADD_SUCCESS);
+                model.addAttribute("success", true);
+            }
+        }
+        else {
             result = credentialService.updateCredential(credential, username);
-
-        model.addAttribute("success", true);
-        if (result!=1)
-            model.addAttribute("success", false);
+            if (result != 1) {
+                model.addAttribute("message", CredentialService.UPDATE_FAIL);
+                model.addAttribute("success", false);
+            } else {
+                model.addAttribute("message", CredentialService.UPDATE_SUCCESS);
+                model.addAttribute("success", true);
+            }
+        }
 
         model.addAttribute("activeTab", "creds");
         return "result";
@@ -53,14 +64,17 @@ public class CredentialController {
     @GetMapping("/deletecred/{credId}")
     public String deleteCredential(Authentication authentication, @PathVariable("credId") Integer credentialId, Model model) {
         String username = authentication.getName();
-
         Integer result = credentialService.deleteCredential(credentialId, username);
-        model.addAttribute("success", true);
-        if (result!=1)
+
+        if (result != 1) {
+            model.addAttribute("message", CredentialService.DELETE_FAIL);
             model.addAttribute("success", false);
+        } else {
+            model.addAttribute("message", CredentialService.DELETE_SUCCESS);
+            model.addAttribute("success", true);
+        }
 
         model.addAttribute("activeTab", "creds");
-
         return "result";
     }
 
