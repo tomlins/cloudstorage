@@ -7,8 +7,6 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Optional;
-
 @ControllerAdvice
 public class ExceptionControllerAdvice {
 
